@@ -16,8 +16,32 @@ async function getOrCreateShopDbId(shopId) {
 }
 
 exports.Create = async (data) => {
-  const recordingId = uuidv4();
   const shopDbId = await getOrCreateShopDbId(data.shopId);
+
+  const [existing] = await db.query(
+    "SELECT recording_id FROM recordings WHERE shop_id = ? AND type = ? LIMIT 1",
+    [shopDbId, data.type],
+  );
+
+  if (existing.length) {
+    const recordingId = existing[0].recording_id;
+    await db.query(
+      "UPDATE recordings SET text_message=?, status=?, file_url=NULL, duration=0 WHERE recording_id=?",
+      [data.textMessage || null, data.status || "processing", recordingId],
+    );
+    return {
+      _id: recordingId,
+      shopId: data.shopId,
+      textMessage: data.textMessage,
+      type: data.type,
+      fileUrl: null,
+      duration: 0,
+      status: data.status,
+      createdAt: new Date(),
+    };
+  }
+
+  const recordingId = uuidv4();
 
   await db.query(
     `INSERT INTO recordings (recording_id, shop_id, text_message, type, file_url, duration, status, created_at)
