@@ -9,6 +9,8 @@ const ARI_URL = process.env.ARI_URL || "http://36.50.41.172:8088";
 const USER = process.env.ARI_USER || "ariuser";
 const PASS = process.env.ARI_PASS || "12345";
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const CALLBACK_URL = process.env.CALLBACK_URL || "https://ping.edokan.co/api/publish";
+const CALLBACK_API_KEY = process.env.CALLBACK_API_KEY;
 
 let client;
 
@@ -177,7 +179,7 @@ async function init() {
 
           try {
             await axios.post(
-              "https://ping.edokan.co/api/publish",
+              CALLBACK_URL,
               {
                 channel: channelName,
                 answered: true,
@@ -185,8 +187,7 @@ async function init() {
               },
               {
                 headers: {
-                  "X-API-Key":
-                    "pae5air7iafaingahng0nieceot9wiegiphohJei0Iheejohhiepek5diebahso0",
+                  "X-API-Key": CALLBACK_API_KEY,
                 },
               },
             );

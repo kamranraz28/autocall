@@ -75,6 +75,8 @@ npm start
 | `ELEVENLABS_API_KEY` | ElevenLabs TTS key |
 | `VOICE_ID` | ElevenLabs voice ID |
 | `VPS_PASS` | SFTP password for audio upload |
+| `CALLBACK_URL` | Callback endpoint URL |
+| `CALLBACK_API_KEY` | API key for callback authentication |
 
 ## Database Tables
 
@@ -106,11 +108,11 @@ npm start
 
 ## Callback
 
-After each call completes, a POST request is sent to:
+After each call completes, a POST request is sent to `CALLBACK_URL` with `CALLBACK_API_KEY`:
 
 ```
-POST https://ping.edokan.co/api/publish
-X-API-Key: pae5air7iafaingahng0nieceot9wiegiphohJei0Iheejohhiepek5diebahso0
+POST <CALLBACK_URL>
+X-API-Key: <CALLBACK_API_KEY>
 
 {
   "channel": "<channel_from_db>",
