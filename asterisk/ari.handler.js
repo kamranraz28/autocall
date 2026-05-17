@@ -166,6 +166,35 @@ async function init() {
             [callId],
           );
 
+          const answerCode =
+            result === "success" ? 1 : result === "thank_you" ? 2 : null;
+
+          const [callRow] = await db.query(
+            "SELECT channel FROM calls WHERE call_id=? LIMIT 1",
+            [callId],
+          );
+          const channelName = callRow.length ? callRow[0].channel : null;
+
+          try {
+            await axios.post(
+              "https://ping.edokan.co/api/publish",
+              {
+                channel: channelName,
+                answered: true,
+                answerCode,
+              },
+              {
+                headers: {
+                  "X-API-Key":
+                    "pae5air7iafaingahng0nieceot9wiegiphohJei0Iheejohhiepek5diebahso0",
+                },
+              },
+            );
+            console.log("✅ Callback sent for call:", callId);
+          } catch (err) {
+            console.error("❌ Callback failed:", err.message);
+          }
+
           if (dtmfTimeout) clearTimeout(dtmfTimeout);
           if (callTimeout) clearTimeout(callTimeout);
         });
