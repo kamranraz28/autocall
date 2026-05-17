@@ -35,29 +35,35 @@ All endpoints (except `/status`) require header: `x-service-token: <token>`
 
 ## Prerequisites
 
-- Node.js 18+
-- MySQL 8+ (database: `autocall`)
-- MongoDB (for billing)
-- Asterisk server with ARI enabled
+- Docker & Docker Compose
+- Asterisk server with ARI enabled (external, not containerized)
 - ElevenLabs API key (for TTS)
 
 ## Installation
 
+### Docker (recommended)
+
 ```bash
-# 1. Clone and install
+# 1. Clone
 git clone <repo>
 cd autocall
-npm install
 
-# 2. Configure environment
+# 2. Create .env file
 cp .env.example .env
-# Edit .env with your settings (see below)
+# Edit .env — set at minimum: SERVICE_TOKEN, BASE_URL,
+# ELEVENLABS_API_KEY, VOICE_ID, VPS_PASS, CALLBACK_API_KEY
 
-# 3. Create MySQL database and tables
-mysql -u root -e "CREATE DATABASE autocall"
-# Run the schema (tables: shops, calls, recordings)
+# 3. Start all services
+docker compose up -d
 
-# 4. Start
+# App runs at http://localhost:3000
+```
+
+### Manual
+
+```bash
+npm install
+# Requires MySQL 8+ and MongoDB running locally
 npm start
 ```
 
@@ -69,6 +75,11 @@ npm start
 | `SERVICE_TOKEN` | API auth token |
 | `BASE_URL` | Public server URL |
 | `MONGO_URI` | MongoDB connection string |
+| `MYSQL_HOST` | MySQL host (default: 127.0.0.1) |
+| `MYSQL_PORT` | MySQL port (default: 3306) |
+| `MYSQL_USER` | MySQL user (default: root) |
+| `MYSQL_PASSWORD` | MySQL password |
+| `MYSQL_DATABASE` | MySQL database (default: autocall) |
 | `ARI_URL` | Asterisk ARI base URL |
 | `ARI_USER` | ARI username |
 | `ARI_PASS` | ARI password |

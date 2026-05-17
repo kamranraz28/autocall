@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: autocall-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-autocall}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7
+    container_name: autocall-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: autocall-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    environment:
+      - PORT=3000
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-rootpass}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-autocall}
+      - MONGO_URI=mongodb://mongo:27017/autocall
+      - SERVICE_TOKEN=${SERVICE_TOKEN}
+      - BASE_URL=${BASE_URL}
+      - ARI_URL=${ARI_URL:-http://36.50.41.172:8088}
+      - ARI_USER=${ARI_USER:-ariuser}
+      - ARI_PASS=${ARI_PASS:-12345}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - VOICE_ID=${VOICE_ID}
+      - VPS_PASS=${VPS_PASS}
+      - CALLBACK_URL=${CALLBACK_URL:-https://ping.edokan.co/api/publish}
+      - CALLBACK_API_KEY=${CALLBACK_API_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  mysql_data:
+  mongo_data:
+  uploads_data:

@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS shops (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    shop_id VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS calls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    call_id VARCHAR(36) NOT NULL UNIQUE,
+    shop_id INT NOT NULL,
+    to_number VARCHAR(20) NOT NULL,
+    channel VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'queued',
+    result VARCHAR(20) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ended_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (shop_id) REFERENCES shops(id)
+);
+
+CREATE TABLE IF NOT EXISTS recordings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recording_id VARCHAR(36) NOT NULL UNIQUE,
+    shop_id INT NOT NULL,
+    text_message TEXT,
+    type VARCHAR(20),
+    file_url VARCHAR(500),
+    duration INT DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'processing',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (shop_id) REFERENCES shops(id)
+);
